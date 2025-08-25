@@ -17,13 +17,15 @@ export async function processReceipt(
 
   // 1) Reglas rápidas (incluye vendor identifications naive)
   // const base = naiveParse(ocrOut.text);
+
+  // Se creo una nueva función más adaptable y flexible con mayor grado de exactitud para la extracción de datos
   const base = improvedParser(ocrOut.text);
 
   console.log('\n\n This is naiveParse or BASE:', base);
 
   // TODO: Implementar
   // 2) Implementar IA opcional (esto mejora la extracción de información con una IA)
-  // ! const aiStruct = await ai.structure(ocrOut.text).catch(() => ({}) as any);
+  const aiStruct = await ai.structure(ocrOut.text).catch(() => ({}) as any);
 
   // TODO: Implementar
   // 3) Implementar Categoría heurística
@@ -56,7 +58,7 @@ export async function processReceipt(
   //   rawText: ocrOut.text
   // };
 
-  const json = {};
+  const json = base;
 
   const saved = await prisma.receipt.create({
     data: {

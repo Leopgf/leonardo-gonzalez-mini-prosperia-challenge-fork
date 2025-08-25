@@ -1,5 +1,5 @@
 import { ParsedReceipt } from '../../types/receipt.js';
-import { rules } from './rules';
+import { rules } from './rules.js';
 
 export function naiveParse(rawText: string): Partial<ParsedReceipt> {
   const lowerCaseText = rawText.replace(/\t|\r/g, '').toLowerCase();

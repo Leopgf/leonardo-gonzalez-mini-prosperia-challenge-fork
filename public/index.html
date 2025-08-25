@@ -55,14 +55,79 @@
   <script>
     const form = document.getElementById('f');
     const out = document.getElementById('out');
+    const fileInput = form.querySelector('input[type="file"]')
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const fd = new FormData(form);
+
+      const file = fileInput.files[0]
+
+      if (!file) return
+
       out.innerHTML = '<p class="muted">Procesando…</p>';
+      let fd = new FormData(form);
+
+      if (file.type === 'application/pdf') {
+
+        try {
+          // Converting PDF to PNG file
+          const imageFile = await convertPdfToImage(file);
+
+          if (!imageFile) {
+            out.innerHTML = '<p class="muted">Error: No se pudo convertir el PDF.</p>';
+            return
+          }
+
+          fd = new FormData();
+          fd.append('file', imageFile)
+        } catch (error) {
+          console.error('Error durante la conversión del PDF:', error);
+          out.innerHTML = '<p class="muted">Error: ' + error.message + '</p>';
+        }
+      }
+
+      await sendFileToBackend(fd)
+
+    });
+
+    async function sendFileToBackend(fd) {
       const res = await fetch('/api/receipts', { method: 'POST', body: fd });
       const json = await res.json();
       out.innerHTML = '<h3>Resultado</h3><pre>' + JSON.stringify(json, null, 2) + '</pre>';
-    });
+    }
+
+    async function convertPdfToImage(pdfFile) {
+      const loadingTask = pdfjsLib.getDocument({ data: await pdfFile.arrayBuffer() });
+      const pdf = await loadingTask.promise;
+
+      // Only convert the first page
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: 1.5 });
+
+      const canvas = document.createElement('canvas');
+      const canvasContext = canvas.getContext('2d');
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      await page.render({ canvasContext, viewport }).promise;
+
+      return new Promise(resolve => {
+        canvas.toBlob(blob => {
+          if (!blob) {
+            return resolve(null);
+          }
+
+          const originalFileName = pdfFile.name.replace(/\.pdf$/i, '');
+          const newFileName = originalFileName + '.png';
+
+          resolve(new File([blob], newFileName, { type: 'image/png' }));
+        }, 'image/png');
+      });
+    }
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
   </script>
 </body>
 
