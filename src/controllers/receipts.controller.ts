@@ -18,7 +18,6 @@ export async function createReceipt(
 ) {
   try {
     if (!req.file) throw new HttpError(400, 'file is required');
-    console.log('I am here -----');
     const filePath = path.resolve(req.file.path);
     const saved = await processReceipt(filePath, {
       originalName: req.file.originalname,
