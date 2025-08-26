@@ -25,6 +25,7 @@ export function naiveParse(rawText: string): Partial<ParsedReceipt> {
   const invoice = findInvoice(lowerCaseText);
   const vendorName = guessVendorName(rawText);
   const vendorIds = extractVendorIdentifications(lowerCaseText);
+
   return {
     amount,
     subtotalAmount: subtotal,
@@ -38,12 +39,12 @@ export function naiveParse(rawText: string): Partial<ParsedReceipt> {
   };
 }
 
-function guessVendorName(raw: string): string | null {
+function guessVendorName(raw: string): string {
   const lines = raw
     .split(/\n|\r/)
     .map((l) => l.trim())
     .filter(Boolean);
-  return lines[0]?.slice(0, 80) || null;
+  return lines[0]?.slice(0, 80) || '';
 }
 
 function extractVendorIdentifications(text: string): string[] {
@@ -61,14 +62,14 @@ function extractVendorIdentifications(text: string): string[] {
   return Array.from(new Set(ids));
 }
 
-function findNumber(text: string, re: RegExp): number | null {
+function findNumber(text: string, re: RegExp): number {
   const m = text.match(re);
-  return m ? Number(m[1].replace(',', '.')) : null;
+  return m ? Number(m[1].replace(',', '.')) : 0;
 }
 
-function findDate(text: string): string | null {
+function findDate(text: string): string {
   const m = text.match(/(\d{4}[\/-]\d{2}[\/-]\d{2}|\d{2}[\/-]\d{2}[\/-]\d{4})/);
-  if (!m) return null;
+  if (!m) return '';
   const val = m[1].replace(/\//g, '-');
   if (/^\d{2}-\d{2}-\d{4}$/.test(val)) {
     const [d, mth, y] = val.split('-');
@@ -77,9 +78,9 @@ function findDate(text: string): string | null {
   return val;
 }
 
-function findInvoice(text: string): string | null {
+function findInvoice(text: string): string {
   const m = text.match(/(factura|invoice|n[ºo]\.?|no\.?)[^\w]([a-z0-9-]{4,})/i);
-  return m ? (m[2] as string).toUpperCase() : null;
+  return m ? (m[2] as string).toUpperCase() : '';
 }
 
 export function improvedParser(text: string): Partial<ParsedReceipt> {
@@ -92,7 +93,6 @@ export function improvedParser(text: string): Partial<ParsedReceipt> {
 
   for (const line of lines) {
     const cleanLine = line.replace(/[^a-zA-ZÀ-ÿ0-9\s.,%\/-]/g, '');
-    console.log('\n  LINE', cleanLine);
 
     const tokens = cleanLine.split(/\s+/);
 
@@ -140,7 +140,6 @@ export function improvedParser(text: string): Partial<ParsedReceipt> {
     }
     if (foundFields.size === rules.length) break;
   }
-  console.log('\n FOUND FIELDS', foundFields);
 
   return result;
 }

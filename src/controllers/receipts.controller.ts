@@ -62,3 +62,16 @@ export async function reparseReceipt(
     next(e);
   }
 }
+
+export async function getAllReceipts(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const receipts = await prisma.receipt.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: 500
+  });
+  if (!receipts) throw new HttpError(404, 'Not Found');
+  return res.json(receipts);
+}
