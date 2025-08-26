@@ -1,5 +1,6 @@
-import { AiProvider } from './ai.interface.js';
 import axios from 'axios';
+import { AiProvider } from './ai.interface.js';
+import { aiPrompt } from './ai.mock.js';
 
 export class OpenAiProvider implements AiProvider {
   baseUrl: string;
@@ -12,30 +13,16 @@ export class OpenAiProvider implements AiProvider {
 
   // TODO: Implementar extracción de información con IA del rawText
   async structure(rawText: string) {
+    // El prompt puede venir de base de datos para que se pueda modificar en cualquier momento sin necesidad de realizar un deploy
+    const prompt = aiPrompt;
+
     const payload = {
       // No cambiar modelo. Solo 4o-mini funciona
       model: 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
-          content: `
-You are an expert invoice parser working with OCR-extracted receipts and invoices from various countries and formats.
-
-Your goal is to extract the following fields from messy, unstructured, and potentially multilingual OCR text:
-
-- totalAmount
-- subtotalAmount
-- taxAmount
-- taxPercentage
-- date
-- invoiceNumber
-- vendorName
-- vendorIdentification
-
-Return only a valid and well-formatted JSON object using camelCase keys. If a value cannot be confidently extracted, return null for that key.
-
-Do not include explanations. Do not repeat the text. Only return the JSON object.
-      `.trim()
+          content: prompt
         },
         { role: 'user', content: rawText }
       ],
@@ -55,9 +42,11 @@ Do not include explanations. Do not repeat the text. Only return the JSON object
       );
       return {};
     }
+
     console.log('OpenAI response:', resp.data.choices[0].message.content);
 
-    // TODO: mapear resp.data a objeto JS
+    if (!resp) return {};
+
     return {};
   }
 

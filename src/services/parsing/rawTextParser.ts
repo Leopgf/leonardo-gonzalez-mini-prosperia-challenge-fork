@@ -1,6 +1,11 @@
 import { ParsedReceipt } from '../../types/receipt.js';
 import { rules } from './rules.js';
 
+/**
+ * @deprecated
+ * @param rawText
+ * @returns
+ */
 export function naiveParse(rawText: string): Partial<ParsedReceipt> {
   const lowerCaseText = rawText.replace(/\t|\r/g, '').toLowerCase();
 
@@ -82,7 +87,7 @@ export function improvedParser(text: string): Partial<ParsedReceipt> {
   const result: Record<string, string> = {};
   const foundFields = new Set<string>();
 
-  // Rules can come from config file or db
+  // Las reglas pueden venir de base de datos o de un archivo de configuración
   const parseRules = rules;
 
   for (const line of lines) {
@@ -94,7 +99,6 @@ export function improvedParser(text: string): Partial<ParsedReceipt> {
     for (const rule of parseRules) {
       if (foundFields.has(rule.name)) continue;
 
-      // Try to match full line pattern (e.g., tax %)
       if (!foundFields.has(rule.name) && rule.matchInLine) {
         const match = rule.matchInLine(cleanLine);
         if (match) {
@@ -107,7 +111,6 @@ export function improvedParser(text: string): Partial<ParsedReceipt> {
       for (let i = 0; i < tokens.length; i++) {
         if (!rule.labels.includes(tokens[i])) continue;
 
-        // If rest-of-line capture is enabled
         if (rule.postLabelJoinRestOfLine) {
           const rest = tokens
             .slice(i + 1)
