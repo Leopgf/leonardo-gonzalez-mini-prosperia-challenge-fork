@@ -20,19 +20,16 @@ export async function processReceipt(
   // ! const base = naiveParse(ocrOut.text);
 
   // Se creo una nueva función más adaptable y flexible con mayor grado de exactitud para la extracción de datos
-  // const base = improvedParser(ocrOut.text);
+  const base = improvedParser(ocrOut.text);
 
-  // console.log('\n\n This is naiveParse or BASE:', base);
 
-  // TODO: Implementar
   // 2) Implementar IA opcional (esto mejora la extracción de información con una IA)
   const aiStruct = await ai.structure(ocrOut.text).catch(() => ({}) as any);
 
-  console.log('\n\n Esto es lo de la AI', aiStruct);
 
   // TODO: Implementar
   // 3) Implementar Categoría heurística
-  // ! const category = await categorize(ocrOut.text);
+  const category = await categorize(ocrOut.text);
 
   // TODO: Modificar para poder guardar
   // ! -----------------
@@ -77,4 +74,8 @@ export async function processReceipt(
   });
 
   return saved;
+}
+
+function form(){
+
 }

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { AiProvider } from './ai.interface.js';
 import { aiPrompt } from './ai.mock.js';
 
@@ -11,7 +11,6 @@ export class OpenAiProvider implements AiProvider {
     this.token = process.env.PROSPERIA_TOKEN || '';
   }
 
-  // TODO: Implementar extracción de información con IA del rawText
   async structure(rawText: string) {
     // El prompt puede venir de base de datos para que se pueda modificar en cualquier momento sin necesidad de realizar un deploy
     const prompt = aiPrompt;
@@ -29,25 +28,25 @@ export class OpenAiProvider implements AiProvider {
       temperature: 0.5
     };
 
-    let resp;
+    let rawResp;
 
     try {
-      resp = await axios.post(`${this.baseUrl}/openai/chat`, payload, {
+      rawResp = await axios.post(`${this.baseUrl}/openai/chat`, payload, {
         headers: { 'X-Prosperia-Token': this.token }
       });
     } catch (err: unknown) {
       console.error(
         'OpenAI request failed:',
-        err instanceof Error ? err.message : err
+        err instanceof AxiosError ? err.response?.data : err
       );
       return {};
     }
 
-    console.log('OpenAI response:', resp.data.choices[0].message.content);
+    const resp = rawResp.data.choices[0].message.content;
 
     if (!resp) return {};
 
-    return {};
+    return resp;
   }
 
   // TODO: Implementar categorize con openAI para que retorne la categoria/cuenta
