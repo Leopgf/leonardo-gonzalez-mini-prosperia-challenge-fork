@@ -1,37 +1,54 @@
 import { ParsedReceipt, ParsedReceiptKey } from '../types/receipt';
 
+interface IJsonParsers {
+  textAi: Partial<ParsedReceipt>;
+  textBase: Partial<ParsedReceipt>;
+  param: ParsedReceiptKey;
+}
+
 export function createResponseJson(
-  aiStruct: Partial<ParsedReceipt>,
-  base: Partial<ParsedReceipt>,
+  textAi: Partial<ParsedReceipt>,
+  textBase: Partial<ParsedReceipt>,
   ocrOut: { text: string },
   category: number | null
 ) {
   const json = {
-    amount: jsonParse(aiStruct, base, 'amount'),
-    subtotalAmount: jsonParse(aiStruct, base, 'subtotalAmount'),
-    taxAmount: jsonParse(aiStruct, base, 'taxAmount'),
-    taxPercentage: jsonParse(aiStruct, base, 'taxPercentage'),
-    type: (aiStruct as any).type ?? 'expense',
-    currency: (aiStruct as any).currency ?? 'USD',
-    date: jsonParse(aiStruct, base, 'date'),
-    paymentMethod: jsonParse(aiStruct, base, 'paymentMethod'),
-    description: jsonParse(aiStruct, base, 'description'),
-    invoiceNumber: jsonParse(aiStruct, base, 'invoiceNumber'),
+    amount: numberParse({ textAi, textBase, param: 'amount' }),
+    subtotalAmount: numberParse({ textAi, textBase, param: 'subtotalAmount' }),
+    taxAmount: numberParse({ textAi, textBase, param: 'taxAmount' }),
+    taxPercentage: numberParse({ textAi, textBase, param: 'taxPercentage' }),
+    type: textAi?.type ?? 'expense',
+    currency: textAi?.currency ?? 'USD',
+    date: stringParse({ textAi, textBase, param: 'date' }),
+    paymentMethod: stringParse({ textAi, textBase, param: 'paymentMethod' }),
+    description: stringParse({ textAi, textBase, param: 'description' }),
+    invoiceNumber: numberParse({ textAi, textBase, param: 'invoiceNumber' }),
     category: category,
-    vendorId: jsonParse(aiStruct, base, 'vendorId'),
-    vendorName: jsonParse(aiStruct, base, 'vendorName'),
-    vendorIdentifications: jsonParse(aiStruct, base, 'vendorIdentifications'),
-    items: (aiStruct as any).items ?? [],
+    vendorId: numberParse({ textAi, textBase, param: 'vendorId' }),
+    vendorName: stringParse({ textAi, textBase, param: 'vendorName' }),
+    vendorIdentifications: stringParse({
+      textAi,
+      textBase,
+      param: 'vendorIdentifications'
+    }),
+    items: arrayParse({ textAi, textBase, param: 'items' }),
     rawText: ocrOut.text
   };
 
   return json;
 }
 
-export function jsonParse(
-  ai: Partial<ParsedReceipt>,
-  base: Partial<ParsedReceipt>,
-  param: ParsedReceiptKey
-) {
-  return ai[param] ?? base[param];
+function stringParse({ textAi, textBase, param }: IJsonParsers) {
+  const str = textAi[param] ?? textBase[param];
+  return str ?? '';
+}
+
+function numberParse({ textAi, textBase, param }: IJsonParsers) {
+  const num = textAi[param] ?? textBase[param];
+  return num ?? 0;
+}
+
+function arrayParse({ textAi, textBase, param }: IJsonParsers) {
+  const arr = textAi[param] ?? textBase[param];
+  return arr ?? [];
 }
