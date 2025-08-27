@@ -7,20 +7,22 @@ export type Item = {
 };
 
 export type ParsedReceipt = {
-  amount: number | null;
-  subtotalAmount: number | null;
-  taxAmount: number | null;
-  taxPercentage: number | null;
-  type: "expense" | "income";
-  currency: string | null; // ISO 4217
-  date: string | null; // YYYY-MM-DD
-  paymentMethod: "CARD" | "CASH" | "TRANSFER" | "OTHER" | null;
-  description: string | null;
-  invoiceNumber: string | null;
-  category: number | null; // Account.id
-  vendorId: number | null;
-  vendorName?: string | null;
+  amount?: number;
+  subtotalAmount?: number;
+  taxAmount?: number;
+  taxPercentage?: number;
+  type?: 'expense' | 'income';
+  currency?: string; // ISO 4217
+  date?: string; // YYYY-MM-DD
+  paymentMethod?: 'CARD' | 'CASH' | 'TRANSFER' | 'OTHER';
+  description?: string;
+  invoiceNumber?: string;
+  category?: number; // Account.id
+  vendorId?: number;
+  vendorName?: string;
   vendorIdentifications?: string[];
-  items: Item[];
-  rawText: string;
+  items?: Item[];
+  rawText?: string;
 };
+
+export type ParsedReceiptKey = keyof ParsedReceipt;
