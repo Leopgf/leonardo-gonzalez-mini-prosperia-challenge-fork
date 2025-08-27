@@ -15,7 +15,7 @@ export async function processReceipt(
 
   // ! const base = naiveParse(ocrOut.text);
 
-  // Se creo una nueva función más adaptable y flexible con mayor grado de exactitud para la extracción de datos
+  // Se creo una nueva función más adaptable y flexible para la extracción de datos
   const base = improvedParser(ocrOut.text);
 
   const aiStruct = await ai.structure(ocrOut.text).catch(() => ({}) as any);

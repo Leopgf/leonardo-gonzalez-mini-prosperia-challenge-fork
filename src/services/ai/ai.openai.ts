@@ -12,12 +12,12 @@ export class OpenAiProvider implements AiProvider {
     this.baseUrl = process.env.OPENAI_BASE_URL || 'http://localhost:8080';
     this.token = process.env.PROSPERIA_TOKEN || '';
   }
-  categorize(input: {
-    rawText: string;
-    items?: ParsedReceipt['items'];
-  }): Promise<Partial<ParsedReceipt>> {
-    throw new Error('Method not implemented.');
-  }
+  // categorize(input: {
+  //   rawText: string;
+  //   items?: ParsedReceipt['items'];
+  // }): Promise<Partial<ParsedReceipt>> {
+  //   throw new Error('Method not implemented.');
+  // }
 
   async structure(rawText: string) {
     // El prompt puede venir de base de datos para que se pueda modificar en cualquier momento sin necesidad de realizar un deploy
