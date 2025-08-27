@@ -15,6 +15,8 @@ export class TesseractOcr implements OcrProvider {
 
     worker.terminate();
 
-    return { text: data.text, confidence: 0 };
+    const text = data?.text ?? '';
+
+    return { text, confidence: 0 };
   }
 }
